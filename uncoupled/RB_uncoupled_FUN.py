@@ -67,7 +67,7 @@ def vel_modes(nx, ny, Lx, Ly, kx, T0, Pr, Ra, n, log = False):
     Dx4     = kx**4*II
     
     Lapla   = Dx2 + Dy2
-    Harmo   = Dx4 -2*Dx2@Dy2 + Dy4
+    Harmo   = Dx4 +2*Dx2@Dy2 + Dy4
     iLapl   = np.linalg.inv(Lapla)
         
     # Velocity modes
@@ -178,7 +178,7 @@ def temp_modes(nx, ny, Lx, Ly, kx, T0, Pr, Ra, n, log = False):
     Dx4 = kx**4*II
     
     Lapla = Dx2 + Dy2
-    Harmo = Dx4 -2*Dx2@Dy2 + Dy4
+    Harmo = Dx4 +2*Dx2@Dy2 + Dy4
     iLapl = np.linalg.inv(Lapla)
         
     # Temperature modes

@@ -71,7 +71,7 @@ def coupled_modes(nx, ny, Lx, Ly, kx, T0, Pr, Ra, n, log = False, g2 = 1):
     Dx4     = kx**4*II
     # Compute 2D operators
     Lapla   = Dx2 + Dy2
-    Harmo   = Dx4 -2*Dx2@Dy2 + Dy4
+    Harmo   = Dx4 +2*Dx2@Dy2 + Dy4
     iLapl   = np.linalg.inv(Lapla)
     # Define state matrix terms
     A11 = Pr/np.sqrt(Ra)*iLapl@Harmo
@@ -237,7 +237,7 @@ def vel_modes(nx, ny, Lx, Ly, kx, T0, Pr, Ra, n, log = False):
     
     # Define 2D operators
     Lapla = Dx2 + Dy2
-    Harmo = Dx4 -2*Dx2@Dy2 + Dy4
+    Harmo = Dx4 +2*Dx2@Dy2 + Dy4
     iLapl = np.linalg.inv(Lapla)
         
     # Velocity modes
@@ -344,7 +344,7 @@ def temp_modes(nx, ny, Lx, Ly, kx, T0, Pr, Ra, n, log = False):
     Dx4     = kx**4*II
     
     Lapla = Dx2 + Dy2
-    Harmo = Dx4 -2*Dx2@Dy2 + Dy4
+    Harmo = Dx4 +2*Dx2@Dy2 + Dy4
     iLapl = np.linalg.inv(Lapla)
         
     # Temperature modes
