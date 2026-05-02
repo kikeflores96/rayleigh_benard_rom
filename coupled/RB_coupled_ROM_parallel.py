@@ -35,9 +35,9 @@ if __name__ == '__main__':
     plt.close('all')
     log = False
     # Number of modes per wavenumber 
-    n       = 16
+    n       = 24
     # Number of wavenumbers
-    n_alpha = 6
+    n_alpha = 8
     # Number of modes
     nmodes  = n*n_alpha
     print('Wavenumbers in x = ', n_alpha)
@@ -55,7 +55,7 @@ if __name__ == '__main__':
     # Prandtl and Rayleigh numbers
     Pr      = 1
     Ra      = 1
-    g2      = 1
+    g2      = 1.24
 
     print('Prandtl number = {:6.2f} '.format(Pr))
     print('Rayleigh number = {:6.2f} '.format(Ra))

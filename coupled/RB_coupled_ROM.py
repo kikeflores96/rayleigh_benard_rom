@@ -27,7 +27,7 @@ from FUN                 import *
 from coupled.RB_coupled_FUN import *
 
 
-#%% =============================================================================
+# =============================================================================
 # Build a coupled orthonormal basis
 # =============================================================================
 
@@ -54,7 +54,7 @@ kx      = alpha*np.arange(n_alpha)
 # Prandtl and Rayleigh numbers
 Pr      = 1
 Ra      = 1
-g2      = 1
+g2      = 1.24
 # X and Y axis distretization
 nx, ny  = 4*(n_alpha - 1) + 2, 64
 # Grid points and discretized differential operators

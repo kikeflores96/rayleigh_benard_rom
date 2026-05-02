@@ -32,9 +32,9 @@ if __name__ == '__main__':
     log = False
     
     # Wavenumber in the x direction
-    n_alpha = 6
+    n_alpha = 8
     # Number of modes per wavenumber 
-    n       = 8
+    n       = 12
     # Number of modes
     nmodes  = n*n_alpha
     print('Number of modes in y per wavenumber {:4.0f}'.format(n))
