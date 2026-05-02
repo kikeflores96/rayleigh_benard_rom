@@ -188,15 +188,21 @@ python uncoupled/RB_uncoupled_ROM_parallel.py
 python coupled/RB_coupled_ROM.py
 ```
 
-1. **Build the coupled basis** — for each non-zero wavenumber, solve the Sylvester equation $A\Phi + \Phi A^+ + BB^+ = 0$ for the controllability Gramian $\Phi$, where $A$ is the linearized RB state matrix and $A^+$ is its adjoint under the weighted inner product with weight $\gamma^2$. The state vector is $\mathbf{z} = [\tilde\Psi,\, \tilde\theta]^T$. The direct state matrix is
+1. **Build the coupled basis** — for each non-zero wavenumber, solve the Sylvester equation $A\Phi + \Phi A^{+} + BB^{+} = 0$ for the controllability Gramian $\Phi$, where $A$ is the linearized RB state matrix and $A^{+}$ is its adjoint under the weighted inner product with weight $\gamma^2$. The state vector is $\mathbf{z} = [\tilde{\Psi},\ \tilde{\theta}]^{T}$. The direct state matrix is
 
-$$A = \begin{bmatrix} \dfrac{Pr}{\sqrt{Ra}}\nabla^{-2}\nabla^4 & -ik_x Pr\,\nabla^{-2} \\[6pt] ik_x \partial_y\theta_0 & \dfrac{1}{\sqrt{Ra}}\nabla^2 \end{bmatrix}$$
+$$A = \begin{bmatrix}
+\dfrac{Pr}{\sqrt{Ra}}\nabla^{-2}\nabla^4 & -ik_x Pr\,\nabla^{-2} \\
+ik_x \partial_y\theta_0 & \dfrac{1}{\sqrt{Ra}}\nabla^2
+\end{bmatrix}$$
 
    and the adjoint state matrix is
 
-$$A^+ = \begin{bmatrix} \dfrac{Pr}{\sqrt{Ra}}\nabla^{-2}\nabla^4 & i\gamma^2 k_x \nabla^{-2}\partial_y\theta_0 \\[6pt] -\dfrac{ik_x Pr}{\gamma^2} & \dfrac{1}{\sqrt{Ra}}\nabla^2 \end{bmatrix}.$$
+$$A^{+} = \begin{bmatrix}
+\dfrac{Pr}{\sqrt{Ra}}\nabla^{-2}\nabla^4 & i\gamma^2 k_x \nabla^{-2}\partial_y\theta_0 \\
+-\dfrac{ik_x Pr}{\gamma^2} & \dfrac{1}{\sqrt{Ra}}\nabla^2
+\end{bmatrix}.$$
 
-   Eigenfunctions $\mathbf{z}_\lambda = [\tilde\Psi_\lambda,\, \tilde\theta_\lambda]^T$ are mapped to physical modes via the observation matrix, yielding $\tilde{\boldsymbol{\chi}}_\lambda = [\partial_y\tilde\Psi_\lambda,\, -ik_x\tilde\Psi_\lambda,\, \tilde\theta_\lambda]^T$, which corresponds to $[\tilde u,\, \tilde v,\, \tilde\theta]^T$ satisfying the continuity equation and no-slip conditions. For $k_x = 0$, the off-diagonal coupling terms vanish and decoupled Stokes/diffusion modes are used instead.
+   Eigenfunctions $\mathbf{z}_\lambda = [\tilde{\Psi}_\lambda,\ \tilde{\theta}_\lambda]^{T}$ are mapped to physical modes via the observation matrix, yielding $\tilde{\boldsymbol{\chi}}_\lambda = [\partial_y\tilde{\Psi}_\lambda,\ -ik_x\tilde{\Psi}_\lambda,\ \tilde{\theta}_\lambda]^{T}$, which corresponds to $[\tilde{u},\ \tilde{v},\ \tilde{\theta}]^{T}$ satisfying the continuity equation and no-slip conditions. For $k_x = 0$, the off-diagonal coupling terms vanish and decoupled Stokes/diffusion modes are used instead.
 
 2. **Normalise** under the weighted inner product
 
