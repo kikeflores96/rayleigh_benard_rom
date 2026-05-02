@@ -202,8 +202,7 @@ $$A^{+} = \begin{bmatrix}
 -\dfrac{ik_x Pr}{\gamma^2} & \dfrac{1}{\sqrt{Ra}}\nabla^2
 \end{bmatrix}.$$
 
-   Eigenfunctions $\mathbf{z}_\lambda = [\tilde{\Psi}_\lambda,\ \tilde{\theta}_\lambda]^{T}$ are mapped to physical modes via the observation matrix, yielding $\tilde{\boldsymbol{\chi}}_\lambda = [\partial_y\tilde{\Psi}_\lambda,\ -ik_x\tilde{\Psi}_\lambda,\ \tilde{\theta}_\lambda]^{T}$, which corresponds to $[\tilde{u},\ \tilde{v},\ \tilde{\theta}]^{T}$ satisfying the continuity equation and no-slip conditions. For $k_x = 0$, the off-diagonal coupling terms vanish and decoupled Stokes/diffusion modes are used instead.
-
+Eigenfunctions $\mathbf{z}_\lambda = \lbrack \tilde{\Psi}_\lambda,\ \tilde{\theta}_\lambda \rbrack^{T}$ are mapped to physical modes via the observation matrix, yielding $\tilde{\boldsymbol{\chi}}_\lambda = \lbrack \partial_y\tilde{\Psi}_\lambda,\ -ik_x\tilde{\Psi}_\lambda,\ \tilde{\theta}_\lambda \rbrack^{T}$, which corresponds to $\lbrack \tilde{u},\ \tilde{v},\ \tilde{\theta} \rbrack^{T}$ satisfying the continuity equation and no-slip conditions.
 2. **Normalise** under the weighted inner product
 
 $$\langle \boldsymbol{\chi}_i, \boldsymbol{\chi}_j \rangle_c = \frac{1}{L_x L_y}\int_0^{L_x}\int_0^{L_y}\left(u_i u_j + v_i v_j + \gamma^2 \theta_i \theta_j\right)dy\,dx,$$
