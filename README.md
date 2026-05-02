@@ -213,6 +213,7 @@ This ensures that every mode satisfies the continuity equation and the no-slip b
 $$\langle \boldsymbol{\chi}_i, \boldsymbol{\chi}_j \rangle_c = \frac{1}{L_x L_y}\int_0^{L_x}\int_0^{L_y}\left(u_i u_j + v_i v_j + \gamma^2 \theta_i \theta_j\right)dy\,dx,$$
 
    with $\gamma^2 = 1.24$ determined from DNS energy ratios.
+
 3. **Project** and **save** as in the uncoupled case, but with the unified state vector $\boldsymbol{\chi}_i = [u_i,\, v_i,\, \theta_i]^T$.
 
 ---
