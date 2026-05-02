@@ -202,7 +202,11 @@ $$A^{+} = \begin{bmatrix}
 -\dfrac{ik_x Pr}{\gamma^2} & \dfrac{1}{\sqrt{Ra}}\nabla^2
 \end{bmatrix}.$$
 
-Eigenfunctions $\mathbf{z}_\lambda = [\tilde{\Psi}_\lambda, \tilde{\theta}_\lambda]^{T}$ are mapped to physical modes via the observation matrix, yielding $\tilde{\boldsymbol{\chi}}_\lambda = [\partial_y\tilde{\Psi}_\lambda, -ik_x\tilde{\Psi}_\lambda, \tilde{\theta}_\lambda]^{T}$, which corresponds to $[\tilde{u}, \tilde{v}, \tilde{\theta}]^{T}$ satisfying the continuity equation and no-slip conditions.
+Each eigenfunction $\mathbf{z}_\lambda$ of the Gramian is mapped to a physical mode via the observation matrix $C$, which extracts velocity and temperature from the streamfunction:
+
+$$\tilde{\boldsymbol{\chi}}_\lambda = C\,\mathbf{z}_\lambda = \begin{bmatrix} \partial_y \tilde{\Psi}_\lambda \\ -ik_x \tilde{\Psi}_\lambda \\ \tilde{\theta}_\lambda \end{bmatrix} = \begin{bmatrix} \tilde{u} \\ \tilde{v} \\ \tilde{\theta} \end{bmatrix}.$$
+
+This ensures that every mode satisfies the continuity equation and the no-slip boundary conditions by construction. For $k_x = 0$, the off-diagonal coupling terms in $A$ and $A^+$ vanish and decoupled Stokes/diffusion modes are used instead.
 
 2. **Normalise** under the weighted inner product
 
