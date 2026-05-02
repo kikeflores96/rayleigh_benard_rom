@@ -1,5 +1,7 @@
 # Galerkin Reduced-Order Model for Two-Dimensional Rayleigh-Bénard Convection
 
+> **Disclaimer:** This documentation may contain errors or inconsistencies with the original papers and the code. In case of doubt, always refer to the original papers and contact the authors. AI assistance has been used to create this documentation.
+
 This repository contains the code and precomputed ROM data accompanying the papers:
 
 > **Galerkin reduced-order model for two-dimensional Rayleigh-Bénard convection**  
@@ -186,13 +188,21 @@ python uncoupled/RB_uncoupled_ROM_parallel.py
 python coupled/RB_coupled_ROM.py
 ```
 
-1. **Build the coupled basis** — for each non-zero wavenumber, solve the Sylvester equation $A\Phi + \Phi A^+ + BB^+ = 0$ for the controllability Gramian $\Phi$, where $A$ is the linearized RB state matrix and $A^+$ is its adjoint under the weighted inner product with weight $\gamma^2$. The state vector is $\mathbf{z} = [\tilde\Psi,\, \tilde\theta]^T$ and the direct/adjoint state matrices are
+1. **Build the coupled basis** — for each non-zero wavenumber, solve the Sylvester equation $A\Phi + \Phi A^+ + BB^+ = 0$ for the controllability Gramian $\Phi$, where $A$ is the linearized RB state matrix and $A^+$ is its adjoint under the weighted inner product with weight $\gamma^2$. The state vector is $\mathbf{z} = [\tilde\Psi,\, \tilde\theta]^T$. The direct state matrix is
 
-$$A = \begin{bmatrix} \frac{Pr}{\sqrt{Ra}}\nabla^{-2}\nabla^4 & -ik_x Pr\,\nabla^{-2} \\ ik_x \partial_y\theta_0 & \frac{1}{\sqrt{Ra}}\nabla^2 \end{bmatrix}, \qquad A^+ = \begin{bmatrix} \frac{Pr}{\sqrt{Ra}}\nabla^{-2}\nabla^4 & i\gamma^2 k_x \nabla^{-2}\partial_y\theta_0 \\ -\frac{ik_x Pr}{\gamma^2} & \frac{1}{\sqrt{Ra}}\nabla^2 \end{bmatrix}.$$
+$$A = \begin{bmatrix} \dfrac{Pr}{\sqrt{Ra}}\nabla^{-2}\nabla^4 & -ik_x Pr\,\nabla^{-2} \\[6pt] ik_x \partial_y\theta_0 & \dfrac{1}{\sqrt{Ra}}\nabla^2 \end{bmatrix}$$
 
-   Eigenfunctions are mapped to the output space via $\tilde{\boldsymbol{\chi}}_\lambda = C\mathbf{z}_\lambda$, where $C = [\partial_y,\, 0;\, -ik_x,\, 0;\, 0,\, 1]$ yields modes $[u, v, \theta]^T$ satisfying the continuity equation and no-slip conditions. For $k_x = 0$, the off-diagonal coupling terms vanish and decoupled Stokes/diffusion modes are used instead.
+   and the adjoint state matrix is
 
-2. **Normalise** under the weighted inner product $\langle \boldsymbol{\chi}_i, \boldsymbol{\chi}_j \rangle_c = \frac{1}{L_x L_y}\int_0^{L_x}\!\int_0^{L_y}(u_i u_j + v_i v_j + \gamma^2 \theta_i \theta_j)\,dy\,dx$, with $\gamma^2 = 1.24$ determined from DNS energy ratios.
+$$A^+ = \begin{bmatrix} \dfrac{Pr}{\sqrt{Ra}}\nabla^{-2}\nabla^4 & i\gamma^2 k_x \nabla^{-2}\partial_y\theta_0 \\[6pt] -\dfrac{ik_x Pr}{\gamma^2} & \dfrac{1}{\sqrt{Ra}}\nabla^2 \end{bmatrix}.$$
+
+   Eigenfunctions $\mathbf{z}_\lambda = [\tilde\Psi_\lambda,\, \tilde\theta_\lambda]^T$ are mapped to physical modes via the observation matrix, yielding $\tilde{\boldsymbol{\chi}}_\lambda = [\partial_y\tilde\Psi_\lambda,\, -ik_x\tilde\Psi_\lambda,\, \tilde\theta_\lambda]^T$, which corresponds to $[\tilde u,\, \tilde v,\, \tilde\theta]^T$ satisfying the continuity equation and no-slip conditions. For $k_x = 0$, the off-diagonal coupling terms vanish and decoupled Stokes/diffusion modes are used instead.
+
+2. **Normalise** under the weighted inner product
+
+$$\langle \boldsymbol{\chi}_i, \boldsymbol{\chi}_j \rangle_c = \frac{1}{L_x L_y}\int_0^{L_x}\int_0^{L_y}\left(u_i u_j + v_i v_j + \gamma^2 \theta_i \theta_j\right)dy\,dx,$$
+
+   with $\gamma^2 = 1.24$ determined from DNS energy ratios.
 3. **Project** and **save** as in the uncoupled case, but with the unified state vector $\boldsymbol{\chi}_i = [u_i,\, v_i,\, \theta_i]^T$.
 
 ---
@@ -224,7 +234,7 @@ $$A = \begin{bmatrix} \frac{Pr}{\sqrt{Ra}}\nabla^{-2}\nabla^4 & -ik_x Pr\,\nabla
 
 The uncoupled ROM consists of the following coupled ODE system for velocity coefficients $a_i$ and temperature coefficients $b_i$:
 
-$$\dot{a}_i + \sum_{j,k} N^u_{ijk}\,a_k\,a_j = Pr\!\left(F^u_i + \sum_j F^u_{ij}\,b_j\right) + \frac{Pr}{\sqrt{Ra}}\sum_j D^u_{ij}\,a_j$$
+$$\dot{a}_i + \sum_{j,k} N^u_{ijk}\,a_k\,a_j = Pr\left(F^u_i + \sum_j F^u_{ij}\,b_j\right) + \frac{Pr}{\sqrt{Ra}}\sum_j D^u_{ij}\,a_j$$
 
 $$\dot{b}_i + \sum_j L^\theta_{ij}\,a_j + \sum_{j,k} N^\theta_{ijk}\,a_k\,b_j = \frac{1}{\sqrt{Ra}}\sum_j D^\theta_{ij}\,b_j$$
 
@@ -243,7 +253,7 @@ The total number of degrees of freedom is $n = 2N$, where $N = n_\alpha \times n
 
 The coupled ROM ODE for the unified amplitude coefficients $c_i$ (with $n = N$ degrees of freedom) reads:
 
-$$\dot{c}_i + \sum_j L^\chi_{ij}\,c_j + \sum_{j,k} N^\chi_{ijk}\,c_k\,c_j = Pr\!\left(F^\chi_i + \sum_j F^\chi_{ij}\,c_j\right) + \frac{Pr}{\sqrt{Ra}}\sum_j D^V_{ij}\,c_j + \frac{1}{\sqrt{Ra}}\sum_j D^T_{ij}\,c_j$$
+$$\dot{c}_i + \sum_j L^\chi_{ij}\,c_j + \sum_{j,k} N^\chi_{ijk}\,c_k\,c_j = Pr\left(F^\chi_i + \sum_j F^\chi_{ij}\,c_j\right) + \frac{Pr}{\sqrt{Ra}}\sum_j D^V_{ij}\,c_j + \frac{1}{\sqrt{Ra}}\sum_j D^T_{ij}\,c_j$$
 
 ---
 
