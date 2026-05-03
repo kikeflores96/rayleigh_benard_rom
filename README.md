@@ -23,10 +23,12 @@ This repository implements two Galerkin Reduced-Order Models (ROMs) for 2D Rayle
 3. [Installation](#3-installation)
 4. [Quickstart: simulate from precomputed ROM data](#4-quickstart-simulate-from-precomputed-rom-data)
 5. [Build the ROM from scratch](#5-build-the-rom-from-scratch)
-6. [Code overview](#6-code-overview)
-7. [Precomputed ROM files](#7-precomputed-rom-files)
-8. [Key parameters](#8-key-parameters)
-9. [Citation](#9-citation)
+6. [Direct numerical simulation (DNS)](#6-direct-numerical-simulation-dns)
+7. [State estimation with the EKF](#7-state-estimation-with-the-ekf)
+8. [Code overview](#8-code-overview)
+9. [Precomputed ROM files](#9-precomputed-rom-files)
+10. [Key parameters](#10-key-parameters)
+11. [Citation](#11-citation)
 
 ---
 
@@ -61,25 +63,41 @@ The baseline conductive temperature profile is $\theta_0(y) = 1 - y$, and temper
 ```
 rayleigh_benard_ROM/
 │
-├── FUN.py                           # Shared spectral utilities (Chebyshev, quadrature, inner products, operators)
-├── RB_ROM_environment.yaml          # Conda environment specification
+├── FUN.py                              # Shared spectral utilities (Chebyshev, quadrature, inner products, operators)
+├── RB_ROM_environment.yaml             # Conda environment for ROM and EKF scripts
+├── dns_dedalus3_environment.yaml       # Separate Conda environment for Dedalus 3 DNS
 │
-├── uncoupled/                       # Uncoupled ROM — separate velocity & temperature bases
-│   ├── RB_uncoupled_FUN.py          # Uncoupled ROM functions (modes, projection, ODE RHS, Jacobian)
-│   ├── RB_uncoupled_ROM.py          # Build ROM from scratch and run a test simulation
-│   ├── RB_uncoupled_ROM_parallel.py # Parallel ROM build (multiprocessing)
-│   ├── RB_uncoupled_simulate.py     # Load precomputed ROM → simulate → visualise
-│   └── ROM/                         # Precomputed ROM coefficient files (.h5)
+├── uncoupled/                          # Uncoupled ROM — separate velocity & temperature bases
+│   ├── RB_uncoupled_FUN.py             # Uncoupled ROM functions (modes, projection, ODE RHS, Jacobian)
+│   ├── RB_uncoupled_ROM.py             # Build ROM from scratch and run a test simulation
+│   ├── RB_uncoupled_ROM_parallel.py    # Parallel ROM build (multiprocessing)
+│   ├── RB_uncoupled_simulate.py        # Load precomputed ROM → simulate → visualise
+│   └── ROM/                            # Precomputed ROM coefficient files (.h5)
 │
-└── coupled/                         # Coupled ROM — joint velocity-temperature basis
-    ├── RB_coupled_FUN.py            # Coupled ROM functions (modes, projection, ODE RHS, Jacobian)
-    ├── RB_coupled_ROM.py            # Build ROM from scratch and run a test simulation
-    ├── RB_coupled_ROM_parallel.py   # Parallel ROM build (multiprocessing)
-    ├── RB_coupled_simulate.py       # Load precomputed ROM → simulate → visualise
-    └── ROM/                         # Precomputed ROM coefficient files (.h5)
+├── coupled/                            # Coupled ROM — joint velocity-temperature basis
+│   ├── RB_coupled_FUN.py               # Coupled ROM functions (modes, projection, ODE RHS, Jacobian)
+│   ├── RB_coupled_ROM.py               # Build ROM from scratch and run a test simulation
+│   ├── RB_coupled_ROM_parallel.py      # Parallel ROM build (multiprocessing)
+│   ├── RB_coupled_simulate.py          # Load precomputed ROM → simulate → visualise
+│   └── ROM/                            # Precomputed ROM coefficient files (.h5)
+│
+├── DNS_kalman/                         # Dedalus 3 DNS (requires dns_dedalus3_environment.yaml)
+│   ├── RB_DNS_dedalus3.py              # Run a DNS and save HDF5 output
+│   └── simulations/                    # Precomputed DNS snapshots (HDF5 segment files)
+│       ├── DNS_Pr10p0_R040_rseed001/
+│       ├── DNS_Pr10p0_R080_rseed001/
+│       ├── DNS_Pr10p0_R120_rseed001/
+│       ├── DNS_Pr10p0_R120_rseed002/
+│       ├── DNS_Pr10p0_R120_rseed003/
+│       └── DNS_Pr10p0_R120_rseed004/
+│
+└── state_estimation/                   # Extended Kalman Filter state estimation
+    ├── RB_EKF_FUN.py                   # EKF functions (predict, update, import_DNS, import_ROM, …)
+    ├── RB_EKF_coarse_grid.py           # Run EKF with coarse-grid velocity/temperature sensors
+    └── filter_runs/                    # EKF output files (.h5)
 ```
 
-All scripts must be run **from the repository root** (`rayleigh_benard_ROM/`), so that `FUN.py` and the `uncoupled/` and `coupled/` sub-packages are on the Python path.
+All scripts must be run **from the repository root** (`rayleigh_benard_ROM/`), so that `FUN.py` and all sub-packages are on the Python path. The `state_estimation/` scripts insert the repo root into `sys.path` automatically.
 
 ---
 
@@ -90,7 +108,7 @@ All scripts must be run **from the repository root** (`rayleigh_benard_ROM/`), s
 - [Anaconda](https://www.anaconda.com/) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 - Python 3.13
 
-### Create the environment
+### ROM and state estimation environment
 
 ```bash
 conda env create -f RB_ROM_environment.yaml
@@ -104,8 +122,20 @@ The environment installs all required packages. The key numerical dependencies a
 | `numpy` | Array operations and FFT |
 | `scipy` | ODE integration (`solve_ivp`), Sylvester equation (`solve_sylvester`), sparse matrices |
 | `matplotlib` | Plotting and frame export |
-| `h5py` | Reading and writing ROM coefficient files |
+| `h5py` | Reading and writing ROM and filter coefficient files |
+| `jax` | JIT-compiled ROM evaluation and Jacobian in the EKF |
 | `mpi4py` | Parallel ROM build (optional) |
+
+### DNS environment (Dedalus 3)
+
+Running new DNS simulations requires a **separate** Conda environment because Dedalus 3 has specific dependency requirements that conflict with the main environment.
+
+```bash
+conda env create -f dns_dedalus3_environment.yaml
+conda activate dns_dedalus3
+```
+
+This environment is only needed to run `DNS_kalman/RB_DNS_dedalus3.py`. All ROM simulation and EKF scripts use the standard `galerkin` environment.
 
 ---
 
@@ -218,7 +248,103 @@ $$\langle \boldsymbol{\chi}_i, \boldsymbol{\chi}_j \rangle_c = \frac{1}{L_x L_y}
 
 ---
 
-## 6. Code overview
+## 6. Direct numerical simulation (DNS)
+
+The folder `DNS_kalman/` contains the Dedalus 3 DNS script and a set of precomputed simulation snapshots used to validate the ROM and provide measurements for the state estimation. Dedalus 3 is not compatible with the main `galerkin` conda environment and requires a **separate environment**.
+
+### Environment setup
+
+```bash
+conda env create -f dns_dedalus3_environment.yaml
+conda activate dns_dedalus3
+```
+
+### Running a DNS
+
+```bash
+conda activate dns_dedalus3
+python DNS_kalman/RB_DNS_dedalus3.py
+```
+
+Edit the parameters at the top of the script:
+
+```python
+Pr    = 10       # Prandtl number
+r     = 80       # ratio Ra/Ra_c  (Ra_c = 1707.7651913068134 for no-slip)
+Ra    = r*Ra_c
+rseed = 1        # random seed for the initial perturbation
+```
+
+Output is written to `DNS_kalman/simulations/DNS_Pr{Pr}_R{r}_rseed{rseed}/` as a sequence of HDF5 segment files (`_s1.h5`, `_s2.h5`, …).
+
+### Precomputed simulation data
+
+Six DNS cases are included at $Pr = 10$ for different Rayleigh numbers and random seeds:
+
+| Case folder | $r = Ra/Ra_c$ | rseed |
+|-------------|:-------------:|:-----:|
+| `DNS_Pr10p0_R040_rseed001` | 40 | 1 |
+| `DNS_Pr10p0_R080_rseed001` | 80 | 1 |
+| `DNS_Pr10p0_R120_rseed001` | 120 | 1 |
+| `DNS_Pr10p0_R120_rseed002` | 120 | 2 |
+| `DNS_Pr10p0_R120_rseed003` | 120 | 3 |
+| `DNS_Pr10p0_R120_rseed004` | 120 | 4 |
+
+Each case contains 6 segments, with 500 snapshots per segment ($n_t = 2500$ total over $t \in [0,\, 1500/\sqrt{Pr}]$). The domain is $L_x = 2$, $L_y = 1$ discretised with $N_x = 128$, $N_y = 64$ modes and $3/2$-dealiasing. The SBDF2 scheme is used for time integration.
+
+---
+
+## 7. State estimation with the EKF
+
+The `state_estimation/` folder implements an Extended Kalman Filter (EKF) that combines the coupled Galerkin ROM as a forecast model with sparse physical-space measurements to reconstruct the full 2D flow field.
+
+### Algorithm
+
+The EKF alternates between a **prediction step** that advances the ROM state and covariance forward in time, and an **update step** that assimilates sensor measurements to correct the estimate.
+
+**Prediction (ROM forecast):**
+
+$$\hat{\mathbf{c}}^-_k = \mathcal{F}(\mathbf{c}_{k-1},\, \Delta t), \qquad P^-_k = F_k\,P_{k-1}\,F_k^T + Q,$$
+
+where $\mathcal{F}$ integrates the coupled ROM ODE using RK45, $F_k = I + J(\mathbf{c}_{k-1})\,\Delta t$ is the linearised state transition matrix, $J$ is the analytical ROM Jacobian, and $Q$ is the model noise covariance.
+
+**Update (sensor assimilation):**
+
+$$K_k = P^-_k H^T(H P^-_k H^T + R)^{-1}, \qquad \mathbf{c}_k = \hat{\mathbf{c}}^-_k + K_k(\mathbf{y}_k - H\hat{\mathbf{c}}^-_k),$$
+
+where $H$ is the observation matrix mapping ROM coefficients to physical-space sensor readings, $R$ is the measurement noise covariance, and $\mathbf{y}_k$ is the vector of observations. The Joseph form is used for the covariance update.
+
+### Observation strategies
+
+Two sensing strategies are available in `RB_EKF_coarse_grid.py`:
+
+- **`UVgrid`** — assimilates velocity measurements ($u_x$, $u_y$) at a coarse $4 \times 4$ sensor grid.
+- **`Tgrid`** — assimilates temperature measurements ($\theta'$) at the same grid.
+
+### Running the EKF
+
+```bash
+conda activate galerkin
+python state_estimation/RB_EKF_coarse_grid.py
+```
+
+Key parameters at the top of the script:
+
+```python
+n_alpha, n   = 6, 16    # coupled ROM (C96: 6 wavenumbers × 16 modes)
+ROM_Pr, ROM_Ra, ROM_g2 = 1, 1, 1.24   # ROM generation parameters
+r, Pr, rseed = 120, 10, 1             # DNS case to assimilate
+obs_strat    = 'UVgrid'               # observation strategy
+QR_ratio     = 0.01                   # model-to-sensor noise ratio Q/R
+```
+
+Results are written to `state_estimation/filter_runs/` as HDF5 files containing the filtered/predicted coefficients, error timeseries, and covariance trace.
+
+Three precomputed demonstration runs are included in `state_estimation/filter_runs/`, covering different observation strategies (velocity-only, temperature-only, and combined) for the $r = 120$ DNS case.
+
+---
+
+## 8. Code overview
 
 ### `FUN.py` — shared spectral utilities
 
@@ -266,9 +392,25 @@ The coupled ROM ODE for the unified amplitude coefficients $c_i$ (with $n = N$ d
 
 $$\dot{c}_i + \sum_j L^\chi_{ij}\,c_j + \sum_{j,k} N^\chi_{ijk}\,c_k\,c_j = Pr\left(F^\chi_i + \sum_j F^\chi_{ij}\,c_j\right) + \frac{Pr}{\sqrt{Ra}}\sum_j D^V_{ij}\,c_j + \frac{1}{\sqrt{Ra}}\sum_j D^T_{ij}\,c_j$$
 
+### `state_estimation/RB_EKF_FUN.py`
+
+| Function | Description |
+|----------|-------------|
+| `import_DNS(Ra, Pr, path)` | Load and concatenate Dedalus 3 HDF5 segment files; returns grids and field arrays in `(nt, ny, nx)` layout. Re-interpolates from Gauss–Chebyshev (Dedalus ChebyshevT) to Gauss–Lobatto points via a DCT-II / IDCT-I pair |
+| `estimate(ci_k, Pk, Q, dt, Ra, Pr, ROM, jac)` | EKF prediction step: RK45 forecast + linearised covariance propagation |
+| `update(ci_hat, Pk_hat, yk, Hk, R)` | EKF update step: Kalman gain, state correction, Joseph-form covariance update |
+| `import_ROM(n_alpha, n, nx, ny, nmodes, …)` | Load coupled ROM from `coupled/ROM/`, return JAX-compiled ROM and Jacobian functions |
+| `get_dns_data(r, Ra, Pr, rseed)` | Load DNS case and trim the initial transient (first third of simulation) |
+| `upsample_modes(base, nx_DNS)` | Zero-pad ROM basis in Fourier space to upsample from ROM to DNS x-resolution |
+| `coarse_grid(nrow, ncol, nx, ny)` | Generate flat probe indices for a regular coarse sensor grid |
+| `build_obs_mat(base_us, …)` | Assemble the linear observation matrix $H$ from upsampled basis functions |
+| `ROM(t, Xi, Pr, Ra, …)` | Coupled ROM RHS (dense tensor form, JAX-compatible) |
+| `ROM_sparse(t, Xi, Pr, Ra, …)` | Coupled ROM RHS with sparse nonlinear contraction |
+| `jac_coupled(t, y, Pr, Ra, …)` | Analytical Jacobian for the EKF linearisation |
+
 ---
 
-## 7. Precomputed ROM files
+## 9. Precomputed ROM files
 
 Four ROMs are provided, following the nomenclature of Table I in the companion paper. The **degrees of freedom** (DoF) $n$ is the total dimension of the ODE system: $n = 2N$ for uncoupled ROMs (two independent bases) and $n = N$ for coupled ROMs (one joint basis).
 
@@ -313,7 +455,7 @@ Each `.h5` file stores:
 
 ---
 
-## 8. Key parameters
+## 10. Key parameters
 
 | Parameter | Symbol | Values used | Description |
 |-----------|--------|-------------|-------------|
@@ -331,7 +473,7 @@ The number of Fourier points in $x$ is set to $n_x = 4(n_\alpha - 1) + 2$ to res
 
 ---
 
-## 9. Citation
+## 11. Citation
 
 If you use this code or data, please cite:
 
