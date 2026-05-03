@@ -318,8 +318,9 @@ where $H$ is the observation matrix mapping ROM coefficients to physical-space s
 
 Two sensing strategies are available in `RB_EKF_coarse_grid.py`:
 
-- **`UVgrid`** — assimilates velocity measurements ($u_x$, $u_y$) at a coarse $4 \times 4$ sensor grid.
-- **`Tgrid`** — assimilates temperature measurements ($\theta'$) at the same grid.
+- **`grid`** — assimilates velocity and temperature measurements ($u_x$, $u_y$, $\theta^\prime$) at a coarse sensor grid ($4 \times 4$ by default).
+- **`UVgrid`** — assimilates velocity measurements ($u_x$, $u_y$) at a coarse sensor grid.
+- **`Tgrid`** — assimilates temperature measurements ($\theta'$) at a coarse sensor grid.
 
 ### Running the EKF
 
