@@ -250,7 +250,7 @@ $$\langle \boldsymbol{\chi}_i, \boldsymbol{\chi}_j \rangle_c = \frac{1}{L_x L_y}
 
 ## 6. Direct numerical simulation (DNS)
 
-The folder `DNS_kalman/` contains the Dedalus 3 DNS script and a set of precomputed simulation snapshots used to validate the ROM and provide measurements for the state estimation. Dedalus 3 is not compatible with the main `galerkin` conda environment and requires a **separate environment**.
+The folder `DNS_kalman/` contains the Dedalus 3 DNS script and a set of precomputed simulation snapshots used to validate the ROM and provide measurements for the state estimation. Dedalus 3 uses a **separate environment**.
 
 ### Environment setup
 
