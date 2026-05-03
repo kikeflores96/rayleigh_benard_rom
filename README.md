@@ -190,7 +190,7 @@ To use **C192** instead, set `n_alpha, n = 8, 24` and point to the corresponding
 
 ## 5. Build the ROM from scratch
 
-If you want to recompute the ROM tensors for a different resolution or domain, use the build scripts. This step is computationally expensive for large mode counts and is **not required** to reproduce the paper results, since precomputed files are provided.
+If you want to recompute the ROM tensors for a different resolution or domain, use the build scripts.
 
 ### Uncoupled ROM
 
