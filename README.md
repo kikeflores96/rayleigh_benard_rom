@@ -335,13 +335,13 @@ Key parameters at the top of the script:
 n_alpha, n   = 6, 16    # coupled ROM (C96: 6 wavenumbers × 16 modes)
 ROM_Pr, ROM_Ra, ROM_g2 = 1, 1, 1.24   # ROM generation parameters
 r, Pr, rseed = 120, 10, 1             # DNS case to assimilate
-obs_strat    = 'UVgrid'               # observation strategy
+obs_strat    = 'grid'                 # observation strategy
 QR_ratio     = 0.01                   # model-to-sensor noise ratio Q/R
 ```
 
-Results are written to `state_estimation/filter_runs/` as HDF5 files containing the filtered/predicted coefficients, error timeseries, and covariance trace.
+Results are written to `state_estimation/filter_runs/` as HDF5 files containing the filtered/predicted coefficients, error time series, and covariance trace.
 
-Three precomputed demonstration runs are included in `state_estimation/filter_runs/`, covering different observation strategies (velocity-only, temperature-only, and combined) for the $r = 120$ DNS case.
+Three precomputed demonstration runs are included in `state_estimation/filter_runs/`, covering different $Ra$ numbers.
 
 ---
 
